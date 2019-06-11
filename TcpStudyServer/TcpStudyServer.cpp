@@ -212,6 +212,33 @@ void CTcpStudyServerApp::SaveCustomState()
 
 // CTcpStudyServerApp 消息处理程序
 
+/*
+运行环境：VS2015
+
+基于https://blog.csdn.net/orange_xxx/article/details/7276868做出了简单修改，可以完全实现双向的数据通信；
+
+TCP通信流程
+
+服务器端步骤：
+	加载套接字库，创建套接字(WSAStartup()/socket())；
+	绑定套接字到一个IP地址和一个端口上(bind())；
+	将套接字设置为监听模式等待连接请求(listen())；
+	请求到来后，接受连接请求，返回一个新的对应于此次连接的套接字(accept())；
+	用返回的套接字和客户端进行通信(send()/recv())；
+	返回，等待另一连接请求；
+	关闭套接字，关闭加载的套接字库(closesocket()/WSACleanup())。
+
+客户端步骤：
+	加载套接字库，创建套接字(WSAStartup()/socket())；
+	向服务器发出连接请求(connect())；
+	和服务器端进行通信(send()/recv())；
+	关闭套接字，关闭加载的套接字库(closesocket()/WSACleanup())。
+	--------------------- 
+	作者：nandejxy 
+	来源：CSDN 
+原文：https://blog.csdn.net/nandejxy/article/details/82874606 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+*/
 
 
 //int main_startServe(int argc, char* argv[]);
@@ -241,11 +268,10 @@ void CTcpStudyServerApp::On32771_startServe()
 			AfxMessageBox(_T("socket创建失败!" ));
 		}
 	}
+
+
 	AllocConsole();
 	freopen  ( "conout$", "w",  stdout );
-
-
-
 	int res = start_server( ) ;
 	FreeConsole();
 }
@@ -328,6 +354,8 @@ void CTcpStudyServerApp::On32771_startServe()
 //
 
 
+
+
 void CTcpStudyServerApp::On32772_closeServer()
 {
 	// TODO: 在此添加命令处理程序代码
@@ -345,14 +373,16 @@ void CTcpStudyServerApp::On32773_OnExit()
 
 #include "winsock2.h"
 #include <WS2tcpip.h>
-#include <iostream>
+
 #pragma comment(lib, "ws2_32.lib")
+
+#include <iostream>
 using namespace std;
 
 //int main(int argc, char* argv[])
 int start_server( )
 {
-	const int BUF_SIZE = 64;
+	const   int   BUF_SIZE = 64;
 	WSADATA			wsd;			    //WSADATA变量
 	SOCKET			sServer;		    //服务器套接字
 	SOCKET			sClient;		    //客户端套接字
@@ -392,8 +422,7 @@ int start_server( )
 	}
 
 	// 套接字绑定IP和端口
-
-	retVal = bind(sServer, (LPSOCKADDR)&servAddr, sizeof(SOCKADDR_IN));
+	retVal = bind( sServer, (LPSOCKADDR)&servAddr, sizeof(SOCKADDR_IN)  );
 	if (SOCKET_ERROR == retVal)
 	{
 		cout << "bind failed!" << endl;
@@ -428,7 +457,7 @@ int start_server( )
 	// 如果客户端发送请求，则接受客户端，开始从该客户端读取数据
 	cout << "Server Socket is waiting accpetion !" << endl;
 	int addrClientlen = sizeof(clientAddr);
-	sClient = accept(sServer, (sockaddr FAR*)&clientAddr, &addrClientlen);
+	sClient = accept(sServer, (sockaddr FAR*)&clientAddr,  &addrClientlen);
 	if (INVALID_SOCKET == sClient)
 	{
 		cout << "accept failed!" << endl;
